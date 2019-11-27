@@ -118,10 +118,8 @@ class Emojifier {
     private static Emoji whichEmoji(Face face) {
         // Log all the probabilities
         Log.d(LOG_TAG, "whichEmoji: smilingProb = " + face.getIsSmilingProbability());
-        Log.d(LOG_TAG, "whichEmoji: leftEyeOpenProb = "
-                + face.getIsLeftEyeOpenProbability());
-        Log.d(LOG_TAG, "whichEmoji: rightEyeOpenProb = "
-                + face.getIsRightEyeOpenProbability());
+        Log.d(LOG_TAG, "whichEmoji: leftEyeOpenProb = " + face.getIsLeftEyeOpenProbability());
+        Log.d(LOG_TAG, "whichEmoji: rightEyeOpenProb = " + face.getIsRightEyeOpenProbability());
 
         boolean smiling = face.getIsSmilingProbability() > SMILING_PROB_THRESHOLD;
 
@@ -169,26 +167,22 @@ class Emojifier {
     private static Bitmap addBitmapToFace(Bitmap backgroundBitmap, Bitmap emojiBitmap, Face face) {
 
         // Initialize the results bitmap to be a mutable copy of the original image
-        Bitmap resultBitmap = Bitmap.createBitmap(backgroundBitmap.getWidth(),
-                backgroundBitmap.getHeight(), backgroundBitmap.getConfig());
+        Bitmap resultBitmap = Bitmap.createBitmap(backgroundBitmap.getWidth(), backgroundBitmap.getHeight(), backgroundBitmap.getConfig());
 
         // Scale the emoji so it looks better on the face
         float scaleFactor = EMOJI_SCALE_FACTOR;
 
         // Determine the size of the emoji to match the width of the face and preserve aspect ratio
         int newEmojiWidth = (int) (face.getWidth() * scaleFactor);
-        int newEmojiHeight = (int) (emojiBitmap.getHeight() *
-                newEmojiWidth / emojiBitmap.getWidth() * scaleFactor);
+        int newEmojiHeight = (int) (emojiBitmap.getHeight() * newEmojiWidth / emojiBitmap.getWidth() * scaleFactor);
 
 
         // Scale the emoji
         emojiBitmap = Bitmap.createScaledBitmap(emojiBitmap, newEmojiWidth, newEmojiHeight, false);
 
         // Determine the emoji position so it best lines up with the face
-        float emojiPositionX =
-                (face.getPosition().x + face.getWidth() / 2) - emojiBitmap.getWidth() / 2;
-        float emojiPositionY =
-                (face.getPosition().y + face.getHeight() / 2) - emojiBitmap.getHeight() / 3;
+        float emojiPositionX = (face.getPosition().x + face.getWidth() / 2) - emojiBitmap.getWidth() / 2;
+        float emojiPositionY = (face.getPosition().y + face.getHeight() / 2) - emojiBitmap.getHeight() / 3;
 
         // Create the canvas and draw the bitmaps to it
         Canvas canvas = new Canvas(resultBitmap);
