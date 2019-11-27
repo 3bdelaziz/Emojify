@@ -17,9 +17,10 @@ import com.google.android.gms.vision.face.FaceDetector;
 class Emojifier {
 
     private static final String LOG_TAG = Emojifier.class.getSimpleName();
+
+    private static final float EMOJI_SCALE_FACTOR = .9f;
     private static final double SMILING_PROB_THRESHOLD = .15;
     private static final double EYE_OPEN_PROB_THRESHOLD = .5;
-    private static final float EMOJI_SCALE_FACTOR = .9f;
 
     /**
      * Method for detecting faces in a bitmap, and drawing emoji depending on the facial
@@ -52,6 +53,7 @@ class Emojifier {
         if (faces.size() == 0) {
             Toast.makeText(context, R.string.no_faces_message, Toast.LENGTH_SHORT).show();
         } else {
+
             // Iterate through the faces
             for (int i = 0; i < faces.size(); ++i) {
                 Face face = faces.valueAt(i);
@@ -107,18 +109,22 @@ class Emojifier {
     }
 
     /**
-     * Method for logging the classification probabilities.
+     * Determines the closest emoji to the expression on the face, based on the
+     * odds that the person is smiling and has each eye open.
      *
-     * @param face The face to get the classification probabilities.
+     * @param face The face for which you pick an emoji.
      */
-    private static Emoji whichEmoji(Face face) {
 
+    private static Emoji whichEmoji(Face face) {
         // Log all the probabilities
         Log.d(LOG_TAG, "whichEmoji: smilingProb = " + face.getIsSmilingProbability());
-        Log.d(LOG_TAG, "whichEmoji: leftEyeOpenProb = " + face.getIsLeftEyeOpenProbability());
-        Log.d(LOG_TAG, "whichEmoji: rightEyeOpenProb = " + face.getIsRightEyeOpenProbability());
+        Log.d(LOG_TAG, "whichEmoji: leftEyeOpenProb = "
+                + face.getIsLeftEyeOpenProbability());
+        Log.d(LOG_TAG, "whichEmoji: rightEyeOpenProb = "
+                + face.getIsRightEyeOpenProbability());
 
         boolean smiling = face.getIsSmilingProbability() > SMILING_PROB_THRESHOLD;
+
         boolean leftEyeClosed = face.getIsLeftEyeOpenProbability() < EYE_OPEN_PROB_THRESHOLD;
         boolean rightEyeClosed = face.getIsRightEyeOpenProbability() < EYE_OPEN_PROB_THRESHOLD;
 
@@ -145,7 +151,6 @@ class Emojifier {
                 emoji = Emoji.FROWN;
             }
         }
-
 
         // Log the chosen Emoji
         Log.d(LOG_TAG, "whichEmoji: " + emoji.name());
@@ -193,6 +198,7 @@ class Emojifier {
         return resultBitmap;
     }
 
+
     // Enum for all possible Emojis
     private enum Emoji {
         SMILE,
@@ -204,4 +210,5 @@ class Emojifier {
         CLOSED_EYE_SMILE,
         CLOSED_EYE_FROWN
     }
+
 }
