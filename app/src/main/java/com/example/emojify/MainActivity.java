@@ -26,21 +26,33 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.io.File;
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
+
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 1;
 
     private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
 
-    private ImageView mImageView;
+    @BindView(R.id.image_view)
+    ImageView mImageView;
 
-    private Button mEmojifyButton;
-    private FloatingActionButton mShareFab;
-    private FloatingActionButton mSaveFab;
-    private FloatingActionButton mClearFab;
+    @BindView(R.id.emojify_button)
+    Button mEmojifyButton;
+    @BindView(R.id.share_button)
+    FloatingActionButton mShareFab;
+    @BindView(R.id.save_button)
+    FloatingActionButton mSaveFab;
+    @BindView(R.id.clear_button)
+    FloatingActionButton mClearFab;
 
-    private TextView mTitleTextView;
+    @BindView(R.id.title_text_view)
+    TextView mTitleTextView;
 
     private String mTempPhotoPath;
 
@@ -53,25 +65,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Bind the views
-        mImageView = findViewById(R.id.image_view);
-        mEmojifyButton = findViewById(R.id.emojify_button);
-        mShareFab = findViewById(R.id.share_button);
-        mSaveFab = findViewById(R.id.save_button);
-        mClearFab = findViewById(R.id.clear_button);
-        mTitleTextView = findViewById(R.id.title_text_view);
+        ButterKnife.bind(this);
+
+        // Set up Timber
+        Timber.plant(new Timber.DebugTree());
     }
 
     /**
      * OnClick method for "Emojify Me!" Button. Launches the camera app.
-     *
-     * @param view The emojify me button.
      */
-    public void emojifyMe(View view) {
+    @OnClick(R.id.emojify_button)
+    public void emojifyMe() {
         // Check for the external storage permission
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
 
             // If you do not have permission, request it
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION);
         } else {
             // Launch the camera if the permission exists
             launchCamera();
@@ -79,10 +92,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         // Called when you request permission to read and write to external storage
         if (requestCode == REQUEST_STORAGE_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // If you get permission, launch the camera
                 launchCamera();
             } else {
@@ -117,7 +132,9 @@ public class MainActivity extends AppCompatActivity {
                 mTempPhotoPath = photoFile.getAbsolutePath();
 
                 // Get the content URI for the image file
-                Uri photoURI = FileProvider.getUriForFile(this, FILE_PROVIDER_AUTHORITY, photoFile);
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        FILE_PROVIDER_AUTHORITY,
+                        photoFile);
 
                 // Add the URI so the camera can store the image
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -128,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If the image capture activity was called and was successful
@@ -135,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
             // Process the image and set it to the TextView
             processAndSetImage();
         } else {
+
             // Otherwise, delete the temporary image file
             BitmapUtils.deleteImageFile(this, mTempPhotoPath);
         }
@@ -156,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         // Resample the saved image to fit the ImageView
         mResultsBitmap = BitmapUtils.resamplePic(this, mTempPhotoPath);
 
+
         // Detect the faces and overlay the appropriate emoji
         mResultsBitmap = Emojifier.detectFacesandOverlayEmoji(this, mResultsBitmap);
 
@@ -163,12 +183,12 @@ public class MainActivity extends AppCompatActivity {
         mImageView.setImageBitmap(mResultsBitmap);
     }
 
+
     /**
      * OnClick method for the save button.
-     *
-     * @param view The save button.
      */
-    public void saveMe(View view) {
+    @OnClick(R.id.save_button)
+    public void saveMe() {
         // Delete the temporary image file
         BitmapUtils.deleteImageFile(this, mTempPhotoPath);
 
@@ -178,10 +198,9 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * OnClick method for the share button, saves and shares the new bitmap.
-     *
-     * @param view The share button.
      */
-    public void shareMe(View view) {
+    @OnClick(R.id.share_button)
+    public void shareMe() {
         // Delete the temporary image file
         BitmapUtils.deleteImageFile(this, mTempPhotoPath);
 
@@ -194,11 +213,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * OnClick for the clear button, resets the app to original state.
-     *
-     * @param view The clear button.
      */
     @SuppressLint("RestrictedApi")
-    public void clearImage(View view) {
+    @OnClick(R.id.clear_button)
+    public void clearImage() {
         // Clear the image and toggle the view visibility
         mImageView.setImageResource(0);
         mEmojifyButton.setVisibility(View.VISIBLE);
